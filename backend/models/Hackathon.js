@@ -71,14 +71,24 @@ const hackathonSchema = new mongoose.Schema(
 
         judgingCriteria: [
             {
-                type: String,
-                trim: true,
+                criterion: { type: String, trim: true },
+                maxMarks: { type: Number, default: 10 },
             },
         ],
 
         organizer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+            required: true,
+        },
+        status: {
+            type: String,
+            enum: ["upcoming", "ongoing", "completed"],
+            default: "upcoming",
+        },
+        isRegistrationOpen: {
+            type: Boolean,
+            default: true,
             required: true,
         },
     },
