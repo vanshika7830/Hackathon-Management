@@ -79,6 +79,10 @@ const userSchema = new mongoose.Schema(
             type: String,
         },
 
+        avatarUrl: {
+            type: String,
+        },
+
         // Common Professional Fields
         // (Organizer & Judge)
         designation: {
