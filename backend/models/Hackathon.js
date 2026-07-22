@@ -91,6 +91,13 @@ const hackathonSchema = new mongoose.Schema(
             default: true,
             required: true,
         },
+        assignedJudges:
+            [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User"
+                }
+            ]
     },
     {
         timestamps: true,
