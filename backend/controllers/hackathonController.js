@@ -1,4 +1,5 @@
 import Hackathon from "../models/Hackathon.js";
+import User from "../models/User.js";
 
 export const createHackathon = async (req, res) => {
     try {
@@ -15,7 +16,7 @@ export const createHackathon = async (req, res) => {
 }
 
 
-export const getAllHackathon = async (req, res) => {
+export const getAllHackathons = async (req, res) => {
     try {
         const hackathons = await Hackathon.find().populate("organizer", "firstName lastName email");
         return res.status(200).json(hackathons);
@@ -78,6 +79,38 @@ export const deleteHackathon = async (req, res) => {
 
         await hackathon.deleteOne();
         res.status(200).json({ message: "Hackathon deleted" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ASSIGN JUDGE to hackathon (organizer only, own hackathon)
+export const assignJudge = async (req, res) => {
+    try {
+        const { judgeId } = req.body;
+
+        const hackathon = await Hackathon.findById(req.params.id);
+        if (!hackathon) {
+            return res.status(404).json({ message: "Hackathon not found" });
+        }
+
+        if (hackathon.organizer.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "Not authorized to assign judges to this hackathon" });
+        }
+
+        const judge = await User.findById(judgeId);
+        if (!judge || judge.role !== "judge") {
+            return res.status(400).json({ message: "Invalid judge selected" });
+        }
+
+        if (hackathon.assignedJudges.includes(judgeId)) {
+            return res.status(400).json({ message: "Judge already assigned" });
+        }
+
+        hackathon.assignedJudges.push(judgeId);
+        await hackathon.save();
+
+        res.status(200).json({ message: "Judge assigned", hackathon });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
