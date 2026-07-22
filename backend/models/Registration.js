@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const registrationSchema = new mongoose.Schema(
     {
-        participant: {
+        team: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            ref: "Team",
             required: true,
         },
 
@@ -16,13 +16,21 @@ const registrationSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ["Pending", "Approved", "Rejected"],
-            default: "Pending",
+            enum: ["pending", "approved", "rejected"],
+            default: "pending",
+        },
+
+        registeredBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         },
     },
     {
         timestamps: true,
     }
 );
+
+registrationSchema.index({ team: 1, hackathon: 1 }, { unique: true });
 
 export default mongoose.model("Registration", registrationSchema);
