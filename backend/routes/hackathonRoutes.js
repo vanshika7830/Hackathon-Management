@@ -5,6 +5,7 @@ import {
     getHackathonById,
     updateHackathon,
     deleteHackathon,
+    assignJudge,
 } from "../controllers/hackathonController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
