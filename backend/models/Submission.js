@@ -35,11 +35,13 @@ const submissionSchema = new mongoose.Schema(
         githubRepo: {
             type: String,
             trim: true,
+            required: true,
         },
 
         liveDemoUrl: {
             type: String,
             trim: true,
+            required: true,
         },
 
         techStack: [
@@ -68,10 +70,14 @@ const submissionSchema = new mongoose.Schema(
             enum: ["Pending", "Under Review", "Approved", "Rejected"],
             default: "Pending",
         },
+        description: {
+            type: String,
+            trim: true,
+        },
     },
     {
         timestamps: true,
     }
 );
-
+submissionSchema.index({ team: 1, hackathon: 1 }, { unique: true });
 export default mongoose.model("Submission", submissionSchema);
