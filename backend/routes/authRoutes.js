@@ -1,5 +1,5 @@
 import express from "express";
-import { signup, login, createJudge, updateUserRole } from "../controllers/authController.js";
+import { signup, login, createJudge, updateUserRole, changePassword } from "../controllers/authController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js"
 
@@ -9,5 +9,6 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.post("/createjudge", protect, authorizeRoles("admin"), createJudge);
 router.patch("/users/:id/role", protect, authorizeRoles("admin"), updateUserRole);
+router.patch("/change-password", protect, changePassword);
 
 export default router;
