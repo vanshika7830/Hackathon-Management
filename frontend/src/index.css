@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+    @apply transition-colors duration-300;
+}
+
+/* Styled dropdown select element globally */
+select {
+    cursor: pointer;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease-in-out;
+}
+
+select:hover {
+    border-color: #6366f1;
+    box-shadow: 0 2px 8px -2px rgba(99, 102, 241, 0.2);
+}
+
+.dark select:hover {
+    border-color: #818cf8;
+    box-shadow: 0 2px 8px -2px rgba(129, 140, 248, 0.25);
+}
+
+/* Style options popup dropdown */
+select option {
+    background-color: #ffffff;
+    color: #0f172a;
+    padding: 8px 12px;
+}
+
+.dark select option {
+    background-color: #0f172a;
+    color: #f8fafc;
+}
