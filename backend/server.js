@@ -22,6 +22,10 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
+app.get("/", (req, res) => {
+    res.send("HackSphere API is running...");
+});
+
 app.use("/auth", authRoutes);
 app.use("/hackathons", hackathonRoutes);
 app.use("/teams", teamRoutes);
