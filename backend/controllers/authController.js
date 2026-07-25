@@ -158,30 +158,46 @@ export const forgotPassword = async (req, res) => {
             return res.status(404).json({ message: "No account found with this email" });
         }
 
-        // generate raw token (sent to user) + hashed token (stored in DB)
         const resetToken = crypto.randomBytes(32).toString("hex");
         const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
         user.resetPasswordToken = hashedToken;
-        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+        user.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
         await user.save();
 
-        const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+        const baseUrl = process.env.CLIENT_URL || "http://localhost:5173";
+        const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
 
         const html = `
-      <p>Hello ${user.firstName},</p>
-      <p>You requested a password reset. Click the link below (valid for 15 minutes):</p>
-      <a href="${resetUrl}">${resetUrl}</a>
-      <p>If you didn't request this, ignore this email.</p>
-    `;
+            <div style="font-family: Arial, sans-serif; padding: 24px; color: #1e293b; max-width: 580px; margin: auto; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+                <h2 style="color: #6366f1; font-weight: 800; margin-top: 0;">Password Reset Request</h2>
+                <p>Hello <strong>${user.firstName}</strong>,</p>
+                <p>You recently requested to reset your password for your HackSphere account. Click the button below to set up a new password (valid for 15 minutes):</p>
+                <div style="margin: 24px 0; text-align: center;">
+                    <a href="${resetUrl}" style="background-color: #6366f1; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">Reset Password</a>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin-top: 20px;">Or copy and paste this URL into your browser:</p>
+                <p style="font-size: 12px; color: #6366f1; word-break: break-all;">${resetUrl}</p>
+                <hr style="border: none; border-top: 1px solid #f1f5f9; margin-top: 24px;" />
+                <p style="font-size: 11px; color: #94a3b8; text-align: center;">If you did not request a password reset, please disregard this email.</p>
+            </div>
+        `;
 
-        await sendEmail(user.email, "Password Reset Request", html);
+        await sendEmail(user.email, "Password Reset Request - HackSphere", html);
 
-        res.status(200).json({ message: "Password reset link sent to email" });
+        console.log(`\n=================================================`);
+        console.log(`🔑 PASSWORD RESET LINK FOR ${user.email}:`);
+        console.log(`👉 ${resetUrl}`);
+        console.log(`=================================================\n`);
+
+        res.status(200).json({
+            message: "Password reset link sent to your email!",
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 export const resetPassword = async (req, res) => {
     try {
@@ -214,3 +230,15 @@ export const resetPassword = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getMe = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select("-password");
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
