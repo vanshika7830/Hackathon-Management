@@ -83,15 +83,37 @@ export const cancelRegistration = async (req, res) => {
 
 export const getMyRegistrations = async (req, res) => {
     try {
-        const userTeams = await Team.find({ members: req.user._id });
+        const userTeams = await Team.find({ members: req.user._id })
+            .populate("members", "firstName lastName email")
+            .populate("leader", "firstName lastName email");
+
+        const teamMap = {};
+        userTeams.forEach((t) => {
+            teamMap[t._id.toString()] = t;
+        });
+
         const teamIds = userTeams.map((t) => t._id);
 
         const registrations = await Registration.find({ team: { $in: teamIds } })
             .populate("team")
             .populate("hackathon", "title mode status startDate endDate registrationDeadline")
-            .populate("registeredBy", "firstName lastName email");
+            .populate("registeredBy", "firstName lastName email")
+            .lean();
 
-        res.status(200).json(registrations);
+        const result = registrations.map((r) => {
+            const teamIdStr = r.team?._id ? r.team._id.toString() : r.team?.toString();
+            if (teamIdStr && teamMap[teamIdStr]) {
+                const fullTeamObj = teamMap[teamIdStr].toObject();
+                r.team = {
+                    ...r.team,
+                    members: fullTeamObj.members,
+                    leader: fullTeamObj.leader,
+                };
+            }
+            return r;
+        });
+
+        res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -118,10 +140,10 @@ export const getHackathonRegistrations = async (req, res) => {
         const registrations = await Registration.find({ hackathon: hackathonId })
             .populate({
                 path: "team",
-                populate: {
-                    path: "members leader",
-                    select: "firstName lastName email",
-                },
+                populate: [
+                    { path: "members", select: "firstName lastName email" },
+                    { path: "leader", select: "firstName lastName email" },
+                ],
             })
             .populate("registeredBy", "firstName lastName email");
 

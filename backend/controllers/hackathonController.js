@@ -18,10 +18,17 @@ export const createHackathon = async (req, res) => {
 
 export const getAllHackathons = async (req, res) => {
     try {
-        const hackathons = await Hackathon.find().populate("organizer", "firstName lastName email");
-        return res.status(200).json(hackathons);
+        const filter = {};
+        if (req.query.organizer) {
+            filter.organizer = req.query.organizer;
+        }
+
+        const hackathons = await Hackathon.find(filter).populate(
+            "organizer",
+            "firstName lastName email"
+        );
+        res.status(200).json(hackathons);
     } catch (error) {
-        console.log("Error Occurred");
         res.status(500).json({ message: error.message });
     }
 };

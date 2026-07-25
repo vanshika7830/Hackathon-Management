@@ -54,6 +54,8 @@ export const getJudgeAssignments = async (req, res) => {
     try {
         const hackathons = await Hackathon.find({ assignedJudges: req.user._id });
         const hackathonIds = hackathons.map((h) => h._id);
+        console.log("Judge ID:", req.user._id);
+        console.log("Hackathons found:", hackathons.length);
 
         const submissions = await Submission.find({ hackathon: { $in: hackathonIds } })
             .populate("team", "teamName")

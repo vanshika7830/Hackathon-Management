@@ -12,7 +12,7 @@ import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", protect, authorizeRoles("admin"), getAllUsers);
+router.get("/", protect, getAllUsers);
 router.get("/role", protect, getUsersByRole);
 router.get("/:id", protect, getUserById);
 router.put("/:id", protect, updateUser);
